@@ -1,9 +1,15 @@
 import { Instance, types } from "mobx-state-tree";
 import { interpret } from "xstate/lib/interpreter";
 
-export const XStateable = types
+export interface ICreateXStateAbleProps {
+  machineDefinition: object
+}
+
+export const createXStateAble = ({machineDefinition} : ICreateXStateAbleProps) => {
+
+  const XStateable = types
   .model("XStateable", {
-    machineDefinition: types.frozen(),
+    machineDefinition: types.frozen(machineDefinition),
     appState: types.optional(types.string, "")
   })
   .volatile((self: any) => ({
@@ -19,6 +25,11 @@ export const XStateable = types
       self.appState = self.machine.initialState.value;
       self.service.start();
     }
+  }))
+  .volatile((self: any) => ({
+    
   }));
 
-  export interface IXStateable extends Instance<typeof XStateable> {}
+  return XStateable
+}
+

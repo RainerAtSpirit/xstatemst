@@ -1,44 +1,15 @@
 import { observer } from "mobx-react"
-import { onSnapshot } from "mobx-state-tree"
+import { Instance, onSnapshot } from "mobx-state-tree"
 import * as React from "react"
 import { render } from "react-dom"
-import { IStore, Store } from "./models/Store"
 
-const machineDefinition = {
-  initial: "idle",
-  states: {
-    idle: {
-      on: {
-        FETCH: "pending"
-      }
-    },
-    pending: {
-      onEntry: "fetchData",
-      on: {
-        FULFILL: "fulfilled",
-        REJECT: "rejected"
-      }
-    },
-    rejected: {
-      onEntry: "showErrorMessage",
-      on: {
-        FETCH: "pending"
-      }
-    },
-    fulfilled: {
-      onEntry: "updateData"
-    }
-  }
-}
+import { IRootStore, rootStore } from "./models/RootStore"
 
-const mstStore = Store.create({
-  machineDefinition
-})
 
 // tslint:disable-next-line:no-console
-onSnapshot(mstStore, snapshot => console.log("snapshot", snapshot))
+onSnapshot(rootStore, snapshot => console.log("snapshot", snapshot))
 export interface IAppProps {
-  store: IStore
+  store: IRootStore
 }
 
 const App: React.SFC<IAppProps> = observer(({ store, ...props }: IAppProps) => {
@@ -54,4 +25,4 @@ const App: React.SFC<IAppProps> = observer(({ store, ...props }: IAppProps) => {
   )
 })
 
-render(<App store={mstStore} />, document.getElementById("root"))
+render(<App store={rootStore} />, document.getElementById("root"))
