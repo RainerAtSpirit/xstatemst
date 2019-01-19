@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "outDir": "./lib/",
+        "target": "es5",
+        "lib": [
+          "dom",
+          "es7"
+        ],
+        "declaration": true,
+        "sourceMap": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "jsx": "react",
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true
+    },
+    "files": [
+      "./src/index.tsx"
+    ],
+}
