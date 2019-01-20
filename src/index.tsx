@@ -5,7 +5,6 @@ import { render } from "react-dom"
 
 import { IRootStore, rootStore } from "./models/RootStore"
 
-
 // tslint:disable-next-line:no-console
 onSnapshot(rootStore, snapshot => console.log("snapshot", snapshot))
 export interface IAppProps {
