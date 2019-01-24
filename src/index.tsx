@@ -12,12 +12,12 @@ export interface IAppProps {
 }
 
 const App: React.SFC<IAppProps> = observer(({ store, ...props }: IAppProps) => {
-  const handleOnClick = () => store.service.send("FETCH")
+  const handleOnClick = () => store.xstate.service.send("FETCH")
   return (
     <div>
       <button onClick={handleOnClick}>fetch</button>
       <div>
-        {JSON.stringify(store.appState, null, 2)}
+        {JSON.stringify(store.xstate.value, null, 2)}
         {JSON.stringify(store.result, null, 2)}
       </div>
     </div>

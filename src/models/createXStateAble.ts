@@ -1,35 +1,41 @@
-import { Instance, types } from "mobx-state-tree";
-import { interpret } from "xstate/lib/interpreter";
+import { Instance, types } from "mobx-state-tree"
+import { Machine } from "xstate"
+import { interpret } from "xstate/lib/interpreter"
 
-export interface ICreateXStateAbleProps {
-  machineDefinition: object
-}
-
-export const createXStateAble = ({machineDefinition} : ICreateXStateAbleProps) => {
+export const createXStateAble = (machineDefinition: any, config: any) => {
+  const machine = Machine(machineDefinition, config)
 
   const XStateable = types
-  .model("XStateable", {
-    machineDefinition: types.frozen(machineDefinition),
-    appState: types.optional(types.string, "")
-  })
-  .volatile((self: any) => ({
-    service: interpret(self.machine).onTransition(appState => {
-      self.setAppState(appState.value);
+    .model("XStateable", {
+      machineDefinition: types.frozen(),
+      value: types.optional(types.string, ""),
+      nextEvents: types.array(types.string)
     })
-  }))
-  .actions((self: any) => ({
-    setAppState(appState: any) {
-      self.appState = appState;
-    },
-    afterCreate() {
-      self.appState = self.machine.initialState.value;
-      self.service.start();
-    }
-  }))
-  .volatile((self: any) => ({
-    
-  }));
+    .volatile((self: any) => ({
+      machine
+    }))
+    .volatile((self: any) => ({
+      service: interpret(self.machine).onTransition(state => {
+        self.setValue(state.value)
+        self.setNextEvents(state.nextEvents)
+      })
+    }))
+    .actions((self: any) => ({
+      setValue(value: string) {
+        self.value = value
+      },
+      setNextEvents(nextEvents: any) {
+        self.nextEvents = nextEvents
+      },
+      afterCreate() {
+        self.value = self.machine.initialState.value
+        self.service.start()
+      }
+    }))
 
-  return XStateable
+  const xstate = ((window as any).xstate = XStateable.create({
+    machineDefinition
+  }))
+
+  return xstate
 }
-
