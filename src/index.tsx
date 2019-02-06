@@ -1,27 +1,39 @@
-import { observer } from "mobx-react"
-import { Instance, onSnapshot } from "mobx-state-tree"
 import * as React from "react"
 import { render } from "react-dom"
+import { interpret } from "xstate"
+import { machine, service } from "./machines/PromiseMachine"
 
-import { IRootStore, rootStore } from "./models/RootStore"
+class App extends React.Component {
+  public state = {
+    current: machine.initialState
+  }
 
-// tslint:disable-next-line:no-console
-onSnapshot(rootStore, snapshot => console.log("snapshot", snapshot))
-export interface IAppProps {
-  store: IRootStore
+  public service = service.onTransition(current => {
+    this.setState({ current })
+  })
+
+  public componentDidMount() {
+    this.service.start()
+  }
+
+  public componentWillUnmount() {
+    this.service.stop()
+  }
+
+  public render() {
+    ;(window as any).service = this.service
+    const { current } = this.state
+    const { send } = this.service
+    const handleClick = () => send("FETCH")
+
+    return (
+      <div>
+        <button onClick={handleClick}>fetch</button>
+        {JSON.stringify(this.state.current.context, null, 2)}
+        {JSON.stringify(this.state.current.value, null, 2)}
+      </div>
+    )
+  }
 }
 
-const App: React.SFC<IAppProps> = observer(({ store, ...props }: IAppProps) => {
-  const handleOnClick = () => store.xstate.service.send("FETCH")
-  return (
-    <div>
-      <button onClick={handleOnClick}>fetch</button>
-      <div>
-        {JSON.stringify(store.xstate.value, null, 2)}
-        {JSON.stringify(store.result, null, 2)}
-      </div>
-    </div>
-  )
-})
-
-render(<App store={rootStore} />, document.getElementById("root"))
+render(<App />, document.getElementById("root"))
